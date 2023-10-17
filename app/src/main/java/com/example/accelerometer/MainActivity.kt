@@ -15,7 +15,7 @@ import androidx.core.content.getSystemService
 import org.xml.sax.XMLFilter
 import kotlin.math.abs
 import kotlin.math.sqrt
-
+import androidx.activity.viewModels
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var Sbar: SeekBar
@@ -26,6 +26,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var Yfi: TextView
     private lateinit var Zfi: TextView
     private lateinit var axis: String
+    private val mainActivityViewModel: MainActivityViewModel by viewModels()
+
 
 
     private var Signif: Float = 10.0F
@@ -40,8 +42,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         Yfi = findViewById<TextView>(R.id.Yfind)
         Zfi = findViewById<TextView>(R.id.Zfind)
 
-
-
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
 
@@ -49,7 +49,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         Sbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean){
-                Signif = progress.toFloat()
+                mainActivityViewModel.Signif = progress.toFloat()
+                Signif = mainActivityViewModel.Signif
                 updateCounting()
             }
             override fun onStartTrackingTouch(seek: SeekBar) {
@@ -82,17 +83,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             Yfi.text = roundY
             Zfi.text = roundZ
             val MaxTime = maxOf(x, y, z)
-            if (x > Signif || y > Signif || z > Signif){
-                if (x > Signif) {
-                    axis = "X"
-                    report(axis)
-                 } else if (y > Signif){
-                    axis = "Y"
-                    report(axis)
-                 }else if (z > Signif){
-                     axis = "Z"
-                     report(axis)
-                 }
+            if (x > Signif || y > Signif || z > Signif) {
+                report(mainActivityViewModel.sigAxis(x, y, z))
             }
         }
     }
